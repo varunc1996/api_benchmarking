@@ -3,6 +3,7 @@ from functools import wraps
 
 import argparse
 import threading
+import time
 
 app = Flask(__name__)
 concurrent_requests = 0
@@ -24,6 +25,7 @@ def decrement_concurrent_requests():
 def check_concurrent_requests(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
+        print(f'concurrent requests: {concurrent_requests}')
         if concurrent_requests >= app.config['MAX_CONCURRENT_REQUESTS']:
             return jsonify(error="Too many concurrent requests"), 429
         else:
@@ -39,19 +41,28 @@ def check_concurrent_requests(func):
 @app.route('/hello')
 @check_concurrent_requests
 def hello():
-    return "Hello"
+    return "Hello World"
 
 
-@app.route('/world')
+@app.route('/sleeper1')
 @check_concurrent_requests
-def world():
-    return "World"
+def sleeper1():
+    time.sleep(1)
+    return "slept 1"
 
 
+@app.route('/sleeper2')
 @check_concurrent_requests
-@app.route('/test3')
-def test3():
-    return "Test3"
+def sleeper2():
+    time.sleep(2)
+    return "slept 2"
+
+
+@app.route('/sleeper3')
+@check_concurrent_requests
+def sleeper3():
+    time.sleep(3)
+    return "slept 3"
 
 
 @app.route('/config', methods=['POST'])
@@ -65,7 +76,7 @@ def set_config():
 
 
 def parse_arguments():
-    parser = argparse.ArgumentParser(description='Run the Flask server')
+    parser = argparse.ArgumentParser(description='Simple python flask server')
     parser.add_argument('--max-concurrent-requests', type=int, default=1,
                         help='Maximum number of concurrent requests allowed')
     return parser.parse_args()
@@ -74,4 +85,4 @@ def parse_arguments():
 if __name__ == '__main__':
     args = parse_arguments()
     app.config['MAX_CONCURRENT_REQUESTS'] = args.max_concurrent_requests
-    app.run(debug=True)
+    app.run()
