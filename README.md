@@ -44,3 +44,5 @@ The benchmarking script takes 3 parameters: `requests`, `concurrency` & `targets
 # Example
 python benchmarking/async_benchmarking.py --requests 10 --concurrency 5 --targets endpoints.txt
 ```
+
+[Benchmarking Results](varunc1996/api_benchmarking/blob/master/docs/Results.md)
