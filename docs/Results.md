@@ -5,12 +5,11 @@
 I wanted to initially test the the concurrency is working as I expect it to. So I ran the flask server with default configurations and the benchmarking script with 100 requests at concurreny of 10, then 100 requests with concurrency of 100, with an output token request of 300000 for each request.
 
 <details>
-<summary> `endpoints.txt` </summary>
+<summary> endpoints.txt </summary>
 
 ```
 http://localhost:5000/tokenizer?output_tokens=300000&input_text=abcdefgh
 ```
-
 </details>
 
 <details>
@@ -31,7 +30,6 @@ Throughput: 10.939075850185478 requests per second
 Avg Input Tokens: 2.0000  |  Avg Output Tokens: 300000.0000
 Input Token Throughput: 21.8782 tokens per second  |  Output Token Throughput: 3281722.7551 tokens per second
 ```
-
 </details>
 
 <details>
@@ -53,10 +51,78 @@ Throughput: 23.277331747585237 requests per second
 Avg Input Tokens: 0.9000  |  Avg Output Tokens: 135000.0000
 Input Token Throughput: 20.9496 tokens per second  |  Output Token Throughput: 3142439.7859 tokens per second
 ```
-
 </details>
 
 This was just to corroborate that if I sent more requests concurrently than what the Flask API server can handle at once, I was going to correctly get some `429` response codes.
 
-## Testing on small number of tokens
+## Modifying output tokens & concurrency
 
+For the rest of the testing, I ran the flask server with concurrency of 100: `make run CONCURRENCY=100`
+
+<details>
+<summary> endpoints.txt </summary>
+
+```
+http://localhost:5000/tokenizer?output_tokens=3&input_text=abcdefgh
+```
+</details>
+
+<details>
+<summary> 10K Requests, 10 concurrency, 3K ouput tokens per request </summary>
+
+```
+$ python benchmarking/async_benchmarking.py --requests 10000 --concurrency 10 --targets endpoints.txt
+*** Results ***
+Status codes:
+  200: 10000 times
+Success ratio: 100.00%
+--- - --- - ---
+Total time: 17.3026 seconds
+Median latency: 0.0150  |  Average latency: 0.0171 seconds
+Shortest request time: 0.0045 seconds  |  Longest request time: 0.1030 seconds
+--- - --- - ---
+Throughput: 577.9483276959896 requests per second
+Avg Input Tokens: 2.0000  |  Avg Output Tokens: 3000.0000
+Input Token Throughput: 1155.8967 tokens per second  |  Output Token Throughput: 1733844.9831 tokens per second
+```
+</details>
+
+<details>
+<summary> 10K Requests, 5 concurrency, 3K ouput tokens per request </summary>
+
+```
+$ python benchmarking/async_benchmarking.py --requests 10000 --concurrency 5 --targets endpoints.txt
+*** Results ***
+Status codes:
+  200: 10000 times
+Success ratio: 100.00%
+--- - --- - ---
+Total time: 29.1562 seconds
+Median latency: 0.0065  |  Average latency: 0.0145 seconds
+Shortest request time: 0.0016 seconds  |  Longest request time: 13.1148 seconds
+--- - --- - ---
+Throughput: 342.98051624263013 requests per second
+Avg Input Tokens: 2.0000  |  Avg Output Tokens: 3000.0000
+Input Token Throughput: 685.9610 tokens per second  |  Output Token Throughput: 1028941.5487 tokens per second
+```
+</details>
+
+<details>
+<summary> 10K Requests, 15 concurrency, 3K ouput tokens per request </summary>
+
+```
+$ python benchmarking/async_benchmarking.py --requests 10000 --concurrency 15 --targets endpoints.txt
+*** Results ***
+Status codes:
+  200: 10000 times
+Success ratio: 100.00%
+--- - --- - ---
+Total time: 15.7279 seconds
+Median latency: 0.0205  |  Average latency: 0.0234 seconds
+Shortest request time: 0.0039 seconds  |  Longest request time: 0.3286 seconds
+--- - --- - ---
+Throughput: 635.8147659899045 requests per second
+Avg Input Tokens: 2.0000  |  Avg Output Tokens: 3000.0000
+Input Token Throughput: 1271.6295 tokens per second  |  Output Token Throughput: 1907444.2980 tokens per second
+```
+</details>
