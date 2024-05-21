@@ -15,6 +15,8 @@ async def worker(session, url, status_codes, total_latency, total_input_tokens, 
         url (str): The URL to make the request to.
         status_codes (dict): A dictionary to store status codes and their counts.
         total_latency (list): A list to store total_latency of each request.
+        total_input_tokens(list): A list that stores the total number of input tokens in the first element
+        total_output_tokens(list): A list that stores the total number of output tokens in the first element
         lock (asyncio.Lock): A lock to synchronize access to shared resources.
         semaphore (asyncio.Semaphore): A semaphore to limit concurrency.
     """
@@ -78,7 +80,9 @@ def display_results(status_codes, total_latency, total_time, total_input_tokens,
     Args:
         status_codes (dict): A dictionary to store status codes and their counts.
         total_latency (list): A list to store total_latency of each request.
-        total_time (float): Total time taken for all requests
+        total_time (float): Total time taken for all requests in seconds
+        total_input_tokens(list): A list that stores the total number of input tokens in the first element
+        total_output_tokens(list): A list that stores the total number of output tokens in the first element
     """
     print("*** Results ***")
     print("Status codes:")
@@ -89,8 +93,7 @@ def display_results(status_codes, total_latency, total_time, total_input_tokens,
 
     print("--- - --- - ---")
     print(f"Total time: {total_time:.4f} seconds")
-    average_latency = sum(total_latency) / len(total_latency)
-    print(f"Median latency: {statistics.median(total_latency):.4f}  |  Average latency: {average_latency:.4f} seconds")
+    print(f"Median latency: {statistics.median(total_latency):.4f}  |  Average latency: {(sum(total_latency) / len(total_latency)):.4f} seconds")
     print(f"Shortest request time: {min(total_latency):.4f} seconds  |  Longest request time: {max(total_latency):.4f} seconds")
 
     print("--- - --- - ---")

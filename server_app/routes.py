@@ -13,18 +13,27 @@ lock = threading.Lock()
 
 
 def increment_concurrent_requests():
+    """
+    Increment number of ongoing requests using lock
+    """
     global concurrent_requests
     with lock:
         concurrent_requests += 1
 
 
 def decrement_concurrent_requests():
+    """
+    Decrement number of ongoing requests using lock
+    """
     global concurrent_requests
     with lock:
         concurrent_requests -= 1
 
 
 def check_concurrent_requests(func):
+    """
+    Wrapper function to handle concurrency of the flask API server
+    """
     @wraps(func)
     def wrapper(*args, **kwargs):
         # print(f'concurrent requests: {concurrent_requests}')
@@ -73,7 +82,7 @@ def tokenizer():
     output_text, input_tokens = generate_response(input_text, output_tokens)
 
     # Just return both input and output tokens, so it's easier to
-    # benchmarks and it's easy to use the target file without doing a bunch of string parsing
+    # benchmark and it's easy to use the target file without doing a bunch of string parsing
     return jsonify({
         'input_text': input_text, 'ouput_text': output_text,
         'input_tokens': input_tokens, 'output_tokens': output_tokens,
@@ -83,7 +92,12 @@ def tokenizer():
 def generate_response(input_text, output_tokens):
     """
     Generate a response text of length based on output_tokens & determine the number of input tokens
-    Token length is between 1 & 26
+
+    For reference, I assumed that 1 token == 4 characters 
+    when figuring out how many tokens were in the input string (from OpenAI tokenizer website)
+    Reference: https://platform.openai.com/tokenizer
+
+    For output, I just assumed output_tokens == word count of the response
 
     Args:
         input_text (string): The inputted string
@@ -92,10 +106,6 @@ def generate_response(input_text, output_tokens):
     Returns:
         string: some response string
         int: the number of tokens in the input string
-
-    For reference, I assumed that 1 token == 4 characters 
-    when figuring out how many tokens were in the input string (from OpenAI tokenizer website)
-    Reference: https://platform.openai.com/tokenizer
     """
 
     output_text = ' '.join([generate_random_word() for _ in range(output_tokens)])

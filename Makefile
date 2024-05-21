@@ -9,4 +9,4 @@ run:
 	@echo "Running Flask server with max-concurrent-requests=$(MAX_CONCURRENT_REQUESTS)"
 	@python server_app/routes.py --max-concurrent-requests=$(MAX_CONCURRENT_REQUESTS)
 
-# .PHONY: run
+.PHONY: run
