@@ -4,13 +4,10 @@
 
 I wanted to initially test the the concurrency is working as I expect it to. So I ran the flask server with default configurations and the benchmarking script with 100 requests at concurreny of 10, then 100 requests with concurrency of 100, with an output token request of 300000 for each request.
 
-<details>
-<summary> endpoints.txt </summary>
-
+`endpoints.txt`:
 ```
 http://localhost:5000/tokenizer?output_tokens=300000&input_text=abcdefgh
 ```
-</details>
 
 <details>
 <summary> 100 Requests, 10 concurrency </summary>
@@ -59,13 +56,10 @@ This was just to corroborate that if I sent more requests concurrently than what
 
 For the rest of the testing, I ran the flask server with concurrency of 100: `make run CONCURRENCY=100`
 
-<details>
-<summary> endpoints.txt </summary>
-
+`endpoints.txt`:
 ```
 http://localhost:5000/tokenizer?output_tokens=3000&input_text=abcdefgh
 ```
-</details>
 
 <details>
 <summary> 10K Requests, 5 concurrency, 3K ouput tokens per request: 29.2s </summary>
@@ -156,7 +150,7 @@ For this stage of testing, I wanted to see how the number of output tokens would
 <details>
 <summary> 10K Requests, 10 concurrency, 30 output tokens per request: 4.5s </summary>
 
-endpoints.txt:
+`endpoints.txt`:
 ```
 http://localhost:5000/tokenizer?output_tokens=30&input_text=abcdefgh
 ```
@@ -182,7 +176,7 @@ Input Token Throughput: 4446.4346 tokens per second  |  Output Token Throughput:
 <details>
 <summary> 10K Requests, 10 concurrency, 3K output tokens per request: 20.3s </summary>
 
-endpoints.txt:
+`endpoints.txt`:
 ```
 http://localhost:5000/tokenizer?output_tokens=3000&input_text=abcdefgh
 ```
@@ -208,7 +202,7 @@ Input Token Throughput: 987.5982 tokens per second  |  Output Token Throughput: 
 <details>
 <summary> 10K Requests, 10 concurrency, 300K output tokens per request: 918.4s </summary>
 
-endpoints.txt:
+`endpoints.txt`:
 ```
 http://localhost:5000/tokenizer?output_tokens=300000&input_text=abcdefgh
 ```
