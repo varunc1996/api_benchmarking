@@ -5,7 +5,7 @@
 I wanted to initially test the the concurrency is working as I expect it to. So I ran the flask server with default configurations and the benchmarking script with 100 requests at concurreny of 10, then 100 requests with concurrency of 100, with an output token request of 300000 for each request.
 
 <details>
-<summary> endpoints.txt </summary>
+<summary> `endpoints.txt` </summary>
 
 ```
 http://localhost:5000/tokenizer?output_tokens=300000&input_text=abcdefgh
@@ -55,3 +55,8 @@ Input Token Throughput: 20.9496 tokens per second  |  Output Token Throughput: 3
 ```
 
 </details>
+
+This was just to corroborate that if I sent more requests concurrently than what the Flask API server can handle at once, I was going to correctly get some `429` response codes.
+
+## Testing on small number of tokens
+
