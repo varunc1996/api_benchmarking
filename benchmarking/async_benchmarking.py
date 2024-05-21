@@ -115,7 +115,7 @@ def parse_arguments():
                         help='Total number of requests to execute')
     parser.add_argument('--concurrency', type=int, default=5,
                         help='Maximum number of parallel requests allowed')
-    parser.add_argument('--targets', type=str, required=True,
+    parser.add_argument('--targets', type=str, default='endpoints.txt',
                         help='Path to the file containing endpoints')
     return parser.parse_args()
 
