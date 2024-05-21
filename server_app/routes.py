@@ -73,6 +73,7 @@ def tokenizer():
 def generate_response(input_text, output_tokens):
     """
     Generate a response text of length based on output_tokens & determine the number of input tokens
+    Max token length is 26
 
     Args:
         input_text (string): The inputted string
@@ -83,9 +84,8 @@ def generate_response(input_text, output_tokens):
         int: the number of tokens in the input string
     """
 
-    base_token = 'abcdefghijklmnopqrstuvwxyz'
-    base_text = base_token[:app.config['TOKEN_LENGTH']] if app.config['TOKEN_LENGTH'] < len(base_token) else base_token * math.ceil(app.config['TOKEN_LENGTH'] / len(base_token))
-    output_text = base_text[:app.config['TOKEN_LENGTH']] * output_tokens
+    base_token = 'abcdefghijklmnopqrstuvwxyz'  # Max token length is 26
+    output_text = base_token[:app.config['TOKEN_LENGTH']] * output_tokens
 
     input_tokens = math.ceil(len(input_text) / app.config['TOKEN_LENGTH'])
     return output_text, input_tokens
@@ -98,8 +98,13 @@ def update_config():
         app.config['MAX_CONCURRENT_REQUESTS'] = data['max_concurrent_requests']
         return jsonify(message="Max concurrent requests updated successfully")
     if 'token_length' in data:
+        if data['token_length'] < 1:
+            data['token_length'] = 1
+        elif data['token_length'] > 26:
+            data['token_length'] = 26
+
         app.config['TOKEN_LENGTH'] = data['token_length']
-        return jsonify(message="Token length updated successfully")
+        return jsonify(message=f"Token length updated successfully to {data['token_length']}")
 
     if 'max_concurrent_requests' not in data and 'token_length' not in data:
         return jsonify(error="max_concurrent_requests/token_length field is required in the request"), 400
@@ -119,7 +124,7 @@ def parse_arguments():
     parser.add_argument('--max-concurrent-requests', type=int, default=1,
                         help='Maximum number of concurrent requests allowed')
     parser.add_argument('--token-length', type=int, default=4,
-                        help='The number of characters that constitute a token')
+                        help='The number of characters that constitute a token. Between 1-26')
     return parser.parse_args()
 
 
