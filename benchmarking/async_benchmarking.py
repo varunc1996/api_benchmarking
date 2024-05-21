@@ -6,7 +6,7 @@ import time
 import statistics
 
 
-async def worker(session, url, status_codes, total_latency, lock, semaphore):
+async def worker(session, url, status_codes, total_latency, total_input_tokens, total_output_tokens, lock, semaphore):
     """
     Make an HTTP GET request to the specified URL and update shared statistics.
 
@@ -22,16 +22,23 @@ async def worker(session, url, status_codes, total_latency, lock, semaphore):
     async with semaphore:
         start_time = time.time()
         try:
-            print(f'Request: {url}')
+            # print(f'Request: {url}')
             async with session.get(url) as response:
                 status_code = response.status
+                response_data = await response.json()
+                input_tokens = response_data.get('input_tokens', 0)
+                output_tokens = response_data.get('output_tokens', 0)
         except aiohttp.ClientError:
             status_code = 500  # Internal Server Error
+            input_tokens = 0
+            output_tokens = 0
         end_time = time.time()
         
         async with lock:
             status_codes[status_code] = status_codes.get(status_code, 0) + 1
             total_latency.append(end_time - start_time)
+            total_input_tokens[0] += input_tokens
+            total_output_tokens[0] += output_tokens
 
 
 async def single_benchmark(targets, num_requests, lock, semaphore):
@@ -47,22 +54,24 @@ async def single_benchmark(targets, num_requests, lock, semaphore):
 
     status_codes = {}
     total_latency = []
+    total_input_tokens = [0]
+    total_output_tokens = [0]
 
     start_time = time.time()
     async with aiohttp.ClientSession() as session:
         tasks = []
         for _ in range(num_requests):
             url = random.choice(targets)  # Pick one random target from the list
-            task = asyncio.create_task(worker(session, url, status_codes, total_latency, lock, semaphore))
+            task = asyncio.create_task(worker(session, url, status_codes, total_latency, total_input_tokens, total_output_tokens, lock, semaphore))
             tasks.append(task)
 
         await asyncio.gather(*tasks)
 
     end_time = time.time()
-    display_results(status_codes, total_latency, end_time - start_time)
+    display_results(status_codes, total_latency, end_time - start_time, total_input_tokens, total_output_tokens)
 
 
-def display_results(status_codes, total_latency, total_time):
+def display_results(status_codes, total_latency, total_time, total_input_tokens, total_output_tokens):
     """
     Display our benchmarking results
 
@@ -78,11 +87,16 @@ def display_results(status_codes, total_latency, total_time):
 
     print(f"Success ratio: {((status_codes.get(200, 0) / len(total_latency)) * 100):.2f}%")
 
-    print(f"Total time: {total_time} seconds")
-    print(f"Throughput: {len(total_latency) / total_time} requests per second")
+    print("--- - --- - ---")
+    print(f"Total time: {total_time:.4f} seconds")
     average_latency = sum(total_latency) / len(total_latency)
     print(f"Median latency: {statistics.median(total_latency):.4f}  |  Average latency: {average_latency:.4f} seconds")
-    print(f"Longest request time: {max(total_latency):.4f} seconds  |  Shortest request time: {min(total_latency):.4f} seconds")
+    print(f"Shortest request time: {min(total_latency):.4f} seconds  |  Longest request time: {max(total_latency):.4f} seconds")
+
+    print("--- - --- - ---")
+    print(f"Throughput: {len(total_latency) / total_time} requests per second")
+    print(f"Avg Input Tokens: {(total_input_tokens[0] / len(total_latency)):.4f}  |  Avg Output Tokens: {(total_output_tokens[0] / len(total_latency)):.4f}")
+    print(f"Input Token Throughput: {(total_input_tokens[0] / total_time):.4f} tokens per second  |  Output Token Throughput: {(total_output_tokens[0] / total_time):.4f} tokens per second")
 
 
 def parse_arguments():
