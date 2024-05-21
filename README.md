@@ -7,6 +7,7 @@ I used python version `3.12.2`. To setup virtual environment in which to run fla
 
 ```
 python -m venv venv
+source venv/bin/activate 
 pip install -r requirements.txt
 ```
 
