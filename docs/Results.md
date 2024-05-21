@@ -55,7 +55,7 @@ Input Token Throughput: 20.9496 tokens per second  |  Output Token Throughput: 3
 
 This was just to corroborate that if I sent more requests concurrently than what the Flask API server can handle at once, I was going to correctly get some `429` response codes.
 
-## Modifying output tokens & concurrency
+## Modifying concurrency
 
 For the rest of the testing, I ran the flask server with concurrency of 100: `make run CONCURRENCY=100`
 
@@ -63,12 +63,12 @@ For the rest of the testing, I ran the flask server with concurrency of 100: `ma
 <summary> endpoints.txt </summary>
 
 ```
-http://localhost:5000/tokenizer?output_tokens=3&input_text=abcdefgh
+http://localhost:5000/tokenizer?output_tokens=3000&input_text=abcdefgh
 ```
 </details>
 
 <details>
-<summary> 10K Requests, 10 concurrency, 3K ouput tokens per request </summary>
+<summary> 10K Requests, 10 concurrency, 3K ouput tokens per request: 17.3s </summary>
 
 ```
 $ python benchmarking/async_benchmarking.py --requests 10000 --concurrency 10 --targets endpoints.txt
@@ -88,7 +88,7 @@ Input Token Throughput: 1155.8967 tokens per second  |  Output Token Throughput:
 </details>
 
 <details>
-<summary> 10K Requests, 5 concurrency, 3K ouput tokens per request </summary>
+<summary> 10K Requests, 5 concurrency, 3K ouput tokens per request: 29.2s </summary>
 
 ```
 $ python benchmarking/async_benchmarking.py --requests 10000 --concurrency 5 --targets endpoints.txt
@@ -108,7 +108,7 @@ Input Token Throughput: 685.9610 tokens per second  |  Output Token Throughput: 
 </details>
 
 <details>
-<summary> 10K Requests, 15 concurrency, 3K ouput tokens per request </summary>
+<summary> 10K Requests, 15 concurrency, 3K ouput tokens per request: 15.7s </summary>
 
 ```
 $ python benchmarking/async_benchmarking.py --requests 10000 --concurrency 15 --targets endpoints.txt
@@ -126,3 +126,25 @@ Avg Input Tokens: 2.0000  |  Avg Output Tokens: 3000.0000
 Input Token Throughput: 1271.6295 tokens per second  |  Output Token Throughput: 1907444.2980 tokens per second
 ```
 </details>
+
+<details>
+<summary> 10K Requests, 20 concurrency, 3K ouput tokens per request: 13.5s </summary>
+
+```
+$  python benchmarking/async_benchmarking.py --requests 10000 --concurrency 20 --targets endpoints.txt
+*** Results ***
+Status codes:
+  200: 10000 times
+Success ratio: 100.00%
+--- - --- - ---
+Total time: 13.5230 seconds
+Median latency: 0.0260  |  Average latency: 0.0269 seconds
+Shortest request time: 0.0115 seconds  |  Longest request time: 0.0730 seconds
+--- - --- - ---
+Throughput: 739.4807800149299 requests per second
+Avg Input Tokens: 2.0000  |  Avg Output Tokens: 3000.0000
+Input Token Throughput: 1478.9616 tokens per second  |  Output Token Throughput: 2218442.3400 tokens per second
+```
+</details>
+
+As we can see, keeping the ouput tokens the same, and only adjusting the concurrency, we can see that the higher the concurrency, the faster we finish and the higher the throughput, for the same number of similar requests
