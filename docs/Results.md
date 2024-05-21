@@ -148,3 +148,42 @@ Input Token Throughput: 1478.9616 tokens per second  |  Output Token Throughput:
 </details>
 
 As we can see, keeping the ouput tokens the same, and only adjusting the concurrency, we can see that the higher the concurrency, the faster we finish and the higher the throughput, for the same number of similar requests
+
+## Modifying output tokens
+
+For this stage of testing, I wanted to see how the number of output tokens would affect the latency/throughput.
+
+<details>
+<summary> 10K Requests, 10 concurrency: 29.2s </summary>
+
+	<details>
+	<summary> endpoints.txt </summary>
+
+	```
+	http://localhost:5000/tokenizer?output_tokens=3000&input_text=abcdefgh
+	```
+	</details>
+
+
+	<details>
+	<summary> endpoints.txt </summary>
+
+	```
+	$ python benchmarking/async_benchmarking.py --requests 10000 --concurrency 5 --targets endpoints.txt
+	*** Results ***
+	Status codes:
+	  200: 10000 times
+	Success ratio: 100.00%
+	--- - --- - ---
+	Total time: 29.1562 seconds
+	Median latency: 0.0065  |  Average latency: 0.0145 seconds
+	Shortest request time: 0.0016 seconds  |  Longest request time: 13.1148 seconds
+	--- - --- - ---
+	Throughput: 342.98051624263013 requests per second
+	Avg Input Tokens: 2.0000  |  Avg Output Tokens: 3000.0000
+	Input Token Throughput: 685.9610 tokens per second  |  Output Token Throughput: 1028941.5487 tokens per second
+	```
+	</details>
+
+
+</details>
