@@ -68,26 +68,6 @@ http://localhost:5000/tokenizer?output_tokens=3000&input_text=abcdefgh
 </details>
 
 <details>
-<summary> 10K Requests, 10 concurrency, 3K ouput tokens per request: 17.3s </summary>
-
-```
-$ python benchmarking/async_benchmarking.py --requests 10000 --concurrency 10 --targets endpoints.txt
-*** Results ***
-Status codes:
-  200: 10000 times
-Success ratio: 100.00%
---- - --- - ---
-Total time: 17.3026 seconds
-Median latency: 0.0150  |  Average latency: 0.0171 seconds
-Shortest request time: 0.0045 seconds  |  Longest request time: 0.1030 seconds
---- - --- - ---
-Throughput: 577.9483276959896 requests per second
-Avg Input Tokens: 2.0000  |  Avg Output Tokens: 3000.0000
-Input Token Throughput: 1155.8967 tokens per second  |  Output Token Throughput: 1733844.9831 tokens per second
-```
-</details>
-
-<details>
 <summary> 10K Requests, 5 concurrency, 3K ouput tokens per request: 29.2s </summary>
 
 ```
@@ -104,6 +84,26 @@ Shortest request time: 0.0016 seconds  |  Longest request time: 13.1148 seconds
 Throughput: 342.98051624263013 requests per second
 Avg Input Tokens: 2.0000  |  Avg Output Tokens: 3000.0000
 Input Token Throughput: 685.9610 tokens per second  |  Output Token Throughput: 1028941.5487 tokens per second
+```
+</details>
+
+<details>
+<summary> 10K Requests, 10 concurrency, 3K ouput tokens per request: 17.3s </summary>
+
+```
+$ python benchmarking/async_benchmarking.py --requests 10000 --concurrency 10 --targets endpoints.txt
+*** Results ***
+Status codes:
+  200: 10000 times
+Success ratio: 100.00%
+--- - --- - ---
+Total time: 17.3026 seconds
+Median latency: 0.0150  |  Average latency: 0.0171 seconds
+Shortest request time: 0.0045 seconds  |  Longest request time: 0.1030 seconds
+--- - --- - ---
+Throughput: 577.9483276959896 requests per second
+Avg Input Tokens: 2.0000  |  Avg Output Tokens: 3000.0000
+Input Token Throughput: 1155.8967 tokens per second  |  Output Token Throughput: 1733844.9831 tokens per second
 ```
 </details>
 
