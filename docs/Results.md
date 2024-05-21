@@ -154,36 +154,79 @@ As we can see, keeping the ouput tokens the same, and only adjusting the concurr
 For this stage of testing, I wanted to see how the number of output tokens would affect the latency/throughput.
 
 <details>
-<summary> 10K Requests, 10 concurrency: 29.2s </summary>
+<summary> 10K Requests, 10 concurrency, 30 output tokens per request: 4.5s </summary>
 
-	<details>
-	<summary> endpoints.txt </summary>
+endpoints.txt:
+```
+http://localhost:5000/tokenizer?output_tokens=30&input_text=abcdefgh
+```
 
-	```
-	http://localhost:5000/tokenizer?output_tokens=3000&input_text=abcdefgh
-	```
-	</details>
+Results:
+```
+$ python benchmarking/async_benchmarking.py --requests 10000 --concurrency 10 --targets endpoints.txt
+*** Results ***
+Status codes:
+  200: 10000 times
+Success ratio: 100.00%
+--- - --- - ---
+Total time: 4.4980 seconds
+Median latency: 0.0039  |  Average latency: 0.0044 seconds
+Shortest request time: 0.0019 seconds  |  Longest request time: 0.0512 seconds
+--- - --- - ---
+Throughput: 2223.217314607504 requests per second
+Avg Input Tokens: 2.0000  |  Avg Output Tokens: 30.0000
+Input Token Throughput: 4446.4346 tokens per second  |  Output Token Throughput: 66696.5194 tokens per second
+```
+</details>
 
+<details>
+<summary> 10K Requests, 10 concurrency, 3K output tokens per request: 20.3s </summary>
 
-	<details>
-	<summary> endpoints.txt </summary>
+endpoints.txt:
+```
+http://localhost:5000/tokenizer?output_tokens=3000&input_text=abcdefgh
+```
 
-	```
-	$ python benchmarking/async_benchmarking.py --requests 10000 --concurrency 5 --targets endpoints.txt
-	*** Results ***
-	Status codes:
-	  200: 10000 times
-	Success ratio: 100.00%
-	--- - --- - ---
-	Total time: 29.1562 seconds
-	Median latency: 0.0065  |  Average latency: 0.0145 seconds
-	Shortest request time: 0.0016 seconds  |  Longest request time: 13.1148 seconds
-	--- - --- - ---
-	Throughput: 342.98051624263013 requests per second
-	Avg Input Tokens: 2.0000  |  Avg Output Tokens: 3000.0000
-	Input Token Throughput: 685.9610 tokens per second  |  Output Token Throughput: 1028941.5487 tokens per second
-	```
-	</details>
+Results:
+```
+$ python benchmarking/async_benchmarking.py --requests 10000 --concurrency 10 --targets endpoints.txt
+*** Results ***
+Status codes:
+  200: 10000 times
+Success ratio: 100.00%
+--- - --- - ---
+Total time: 20.2512 seconds
+Median latency: 0.0082  |  Average latency: 0.0202 seconds
+Shortest request time: 0.0014 seconds  |  Longest request time: 13.1212 seconds
+--- - --- - ---
+Throughput: 493.7991143812041 requests per second
+Avg Input Tokens: 2.0000  |  Avg Output Tokens: 3000.0000
+Input Token Throughput: 987.5982 tokens per second  |  Output Token Throughput: 1481397.3431 tokens per second
+```
+</details>
 
+<details>
+<summary> 10K Requests, 10 concurrency, 300K output tokens per request: 918.4s </summary>
 
+endpoints.txt:
+```
+http://localhost:5000/tokenizer?output_tokens=300000&input_text=abcdefgh
+```
+
+Results:
+```
+$ python benchmarking/async_benchmarking.py --requests 10000 --concurrency 10 --targets endpoints.txt
+*** Results ***
+Status codes:
+  200: 10000 times
+Success ratio: 100.00%
+--- - --- - ---
+Total time: 918.4218 seconds
+Median latency: 0.9027  |  Average latency: 0.9180 seconds
+Shortest request time: 0.3070 seconds  |  Longest request time: 4.4582 seconds
+--- - --- - ---
+Throughput: 10.888243337908905 requests per second
+Avg Input Tokens: 2.0000  |  Avg Output Tokens: 300000.0000
+Input Token Throughput: 21.7765 tokens per second  |  Output Token Throughput: 3266473.0014 tokens per second
+```
 </details>
