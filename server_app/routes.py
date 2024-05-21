@@ -2,6 +2,7 @@ from flask import Flask, jsonify, request
 from functools import wraps
 
 import argparse
+import math
 import threading
 import time
 
@@ -65,24 +66,74 @@ def sleeper3():
     return "slept 3"
 
 
+@app.route('/tokenizer', methods=['GET'])
+@check_concurrent_requests
+def tokenizer():
+    input_text = request.args.get('input_text')
+    output_tokens = int(request.args.get('output_tokens'))
+
+    if not input_text or not output_tokens:
+        return "Invalid input", 400
+
+    output_text, input_tokens = generate_response(input_text, output_tokens)
+    return jsonify({'ouput_text': output_text, 'input_tokens': input_tokens})
+
+
+def generate_response(input_text, output_tokens):
+    """
+    Generate a response text based of length based on output_tokens & determine the number of input tokens
+
+    Args:
+        input_text (string): The inputted string
+        output_tokens (int): the length in tokens of the response
+
+    Returns:
+        string: some response string
+        int: the number of tokens in the input string
+    """
+
+    base_token = 'abcdefghijklmnopqrstuvwxyz'
+    base_text = base_token[:app.config['TOKEN_LENGTH']] if app.config['TOKEN_LENGTH'] < len(base_token) else base_token * math.ceil(app.config['TOKEN_LENGTH'] / len(base_token))
+    output_text = base_text[:app.config['TOKEN_LENGTH']] * output_tokens
+
+    input_tokens = math.ceil(len(input_text) / app.config['TOKEN_LENGTH'])
+    return output_text, input_tokens
+
+
 @app.route('/config', methods=['POST'])
 def set_config():
     data = request.json
     if 'max_concurrent_requests' in data:
         app.config['MAX_CONCURRENT_REQUESTS'] = data['max_concurrent_requests']
         return jsonify(message="Max concurrent requests updated successfully")
-    else:
-        return jsonify(error="max_concurrent_requests field is required in the request"), 400
+    if 'token_length' in data:
+        app.config['TOKEN_LENGTH'] = data['token_length']
+        return jsonify(message="Token length updated successfully")
+
+    if 'max_concurrent_requests' not in data and 'token_length' not in data:
+        return jsonify(error="max_concurrent_requests/token_length field is required in the request"), 400
 
 
 def parse_arguments():
+    """
+    Parse command-line arguments.
+
+    Returns:
+        Parsed arguments
+
+    For reference, I assumed that 1 token == 4 characters (from OpenAI tokenizer website)
+    Reference: https://platform.openai.com/tokenizer
+    """
     parser = argparse.ArgumentParser(description='Simple python flask server')
     parser.add_argument('--max-concurrent-requests', type=int, default=1,
                         help='Maximum number of concurrent requests allowed')
+    parser.add_argument('--token-length', type=int, default=4,
+                        help='The number of characters that constitute a token')
     return parser.parse_args()
 
 
 if __name__ == '__main__':
     args = parse_arguments()
     app.config['MAX_CONCURRENT_REQUESTS'] = args.max_concurrent_requests
+    app.config['TOKEN_LENGTH'] = args.token_length
     app.run()

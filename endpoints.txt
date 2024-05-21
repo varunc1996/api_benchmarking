@@ -1,4 +1,3 @@
-http://localhost:5000/hello
-http://localhost:5000/sleeper1
-http://localhost:5000/sleeper2
-http://localhost:5000/sleeper3
+http://localhost:5000/tokenizer?output_tokens=3&input_text=abcdefgh
+http://localhost:5000/tokenizer?output_tokens=5&input_text=abcdefghijklmno
+http://localhost:5000/tokenizer?output_tokens=2&input_text=abcdefghijklmnopqrstuvwxyz

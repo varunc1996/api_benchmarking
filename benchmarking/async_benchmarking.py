@@ -14,7 +14,7 @@ async def worker(session, url, status_codes, total_latency, lock, semaphore):
         session (aiohttp.ClientSession): A session object for making HTTP requests.
         url (str): The URL to make the request to.
         status_codes (dict): A dictionary to store status codes and their counts.
-        total_latency (list): A list to store latencies of each request.
+        total_latency (list): A list to store total_latency of each request.
         lock (asyncio.Lock): A lock to synchronize access to shared resources.
         semaphore (asyncio.Semaphore): A semaphore to limit concurrency.
     """
@@ -22,6 +22,7 @@ async def worker(session, url, status_codes, total_latency, lock, semaphore):
     async with semaphore:
         start_time = time.time()
         try:
+            print(f'Request: {url}')
             async with session.get(url) as response:
                 status_code = response.status
         except aiohttp.ClientError:
@@ -40,7 +41,6 @@ async def single_benchmark(targets, num_requests, lock, semaphore):
     Args:
         targets (list): A list of target URLs to randomly select from.
         num_requests (int): Total number of requests to execute.
-        concurrency (int): Maximum number of parallel requests allowed.
         lock (asyncio.Lock): A lock to synchronize access to shared resources.
         semaphore (asyncio.Semaphore): A semaphore to limit concurrency.
     """
@@ -48,35 +48,41 @@ async def single_benchmark(targets, num_requests, lock, semaphore):
     status_codes = {}
     total_latency = []
 
+    start_time = time.time()
     async with aiohttp.ClientSession() as session:
         tasks = []
         for _ in range(num_requests):
             url = random.choice(targets)  # Pick one random target from the list
-            print(f'URL: {url}')
             task = asyncio.create_task(worker(session, url, status_codes, total_latency, lock, semaphore))
             tasks.append(task)
 
         await asyncio.gather(*tasks)
 
-    display_results(status_codes, total_latency)
+    end_time = time.time()
+    display_results(status_codes, total_latency, end_time - start_time)
 
 
-def display_results(status_codes, total_latency):
+def display_results(status_codes, total_latency, total_time):
     """
     Display our benchmarking results
 
     Args:
         status_codes (dict): A dictionary to store status codes and their counts.
-        total_latency (list): A list to store latencies of each request.
+        total_latency (list): A list to store total_latency of each request.
+        total_time (float): Total time taken for all requests
     """
+    print("*** Results ***")
     print("Status codes:")
-    for code, count in status_codes.items():
-        print(f"{code}: {count} times")
+    for code in dict(sorted(status_codes.items())):
+        print(f"  {code}: {status_codes[code]} times")
 
+    print(f"Success ratio: {((status_codes.get(200, 0) / len(total_latency)) * 100):.2f}%")
+
+    print(f"Total time: {total_time} seconds")
+    print(f"Throughput: {len(total_latency) / total_time} requests per second")
     average_latency = sum(total_latency) / len(total_latency)
-    print(f"Median latency: {statistics.median(total_latency):.4f} | Average latency: {average_latency:.4f} seconds")
-    print(f"Longest request time: {max(total_latency):.4f} seconds")
-    print(f"Shortest request time: {min(total_latency):.4f} seconds")
+    print(f"Median latency: {statistics.median(total_latency):.4f}  |  Average latency: {average_latency:.4f} seconds")
+    print(f"Longest request time: {max(total_latency):.4f} seconds  |  Shortest request time: {min(total_latency):.4f} seconds")
 
 
 def parse_arguments():
@@ -114,7 +120,7 @@ def load_targets(file_path):
 
 def main():
     """
-    Main function to parse arguments, load targets, and run the asyncio event loop.
+    Main function to parse arguments, load targets, run the async requests and display results.
     """
 
     args = parse_arguments()
