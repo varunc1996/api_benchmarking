@@ -45,25 +45,16 @@ def hello():
     return "Hello World"
 
 
-@app.route('/sleeper1')
+@app.route('/sleeper')
 @check_concurrent_requests
-def sleeper1():
-    time.sleep(1)
-    return "slept 1"
+def sleeper():
+    sleep_length = int(request.args.get('sleep_length'))
 
+    if not sleep_length:
+        sleep_length = 1
 
-@app.route('/sleeper2')
-@check_concurrent_requests
-def sleeper2():
-    time.sleep(2)
-    return "slept 2"
-
-
-@app.route('/sleeper3')
-@check_concurrent_requests
-def sleeper3():
-    time.sleep(3)
-    return "slept 3"
+    time.sleep(sleep_length)
+    return f"slept for {sleep_length} second"
 
 
 @app.route('/tokenizer', methods=['GET'])
@@ -81,7 +72,7 @@ def tokenizer():
 
 def generate_response(input_text, output_tokens):
     """
-    Generate a response text based of length based on output_tokens & determine the number of input tokens
+    Generate a response text of length based on output_tokens & determine the number of input tokens
 
     Args:
         input_text (string): The inputted string
@@ -100,8 +91,8 @@ def generate_response(input_text, output_tokens):
     return output_text, input_tokens
 
 
-@app.route('/config', methods=['POST'])
-def set_config():
+@app.route('/update_config', methods=['POST'])
+def update_config():
     data = request.json
     if 'max_concurrent_requests' in data:
         app.config['MAX_CONCURRENT_REQUESTS'] = data['max_concurrent_requests']
