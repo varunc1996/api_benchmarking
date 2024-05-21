@@ -31,7 +31,7 @@ make run CONCURRENCY=100
 The benchmarking script takes 3 parameters: `requests`, `concurrency` & `targets`
 
 <details>
-<summary>Arguments</summary>
+<summary>Parameters</summary>
 
 | Parameter | Type Type | Default | Description |
 | --- | --- | ---- | --- |
@@ -42,5 +42,5 @@ The benchmarking script takes 3 parameters: `requests`, `concurrency` & `targets
 
 ```
 # Example
-python benchmarking/async_benchmarking.py --requests 1000 --concurrency 10 --targets endpoints.txt
+python benchmarking/async_benchmarking.py --requests 10 --concurrency 5 --targets endpoints.txt
 ```
