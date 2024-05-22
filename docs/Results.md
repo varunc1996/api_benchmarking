@@ -4,7 +4,7 @@ I decided to do away with the concept of input tokens for this exercise and just
 
 ## Initial testing of concurrency
 
-I wanted to initially test the the concurrency is working as I expect it to in both the Flask API server and the benchmarking script. So I ran the flask server with default configs (maximum of 10 concurrent requests): `make run`
+I wanted to initially test that the concurrency is working as I expect it to in both the Flask API server and the benchmarking script. So I ran the flask server with default configs (maximum of 10 concurrent requests): `make run`
 
 `endpoints.txt`:
 ```
@@ -162,7 +162,7 @@ Obiously, as the ouput_token size gets larger (the return of the API also takes 
 
 ## Modifying concurrency
 
-Where the benchmarking script really thrives, and async functions in general flourish, is being able to concurrently handle requests that involve waiting (mimicking high network IO wait time calls). I fixed the output tokes at 300 for all these tests.
+Where the benchmarking script really thrives, and async functions in general flourish, is being able to concurrently handle requests that involve waiting (mimicking high network IO wait time calls). I fixed the output tokes to 300 for all these tests.
 
 `endpoints.txt`:
 ```
@@ -255,4 +255,4 @@ In order to better mimic an LLM's HTTP endpoint, I actually initially created a 
 
 I could have made the API server more complicated using `gunicorn` along with Flask, and therefore could have had several workers/threads. That may have ameliorated the bottleneck I mentioned above, however, then this would have become an exercise focused on optimizing the API server's work capacity instead.
 
-In the past I've generally used golang when trying to write more concurrent code, as I've found that it's generally optimized around and promoting of goroutines. This was my first time using python in such a fashion.
+In the past I've usually used golang when trying to write more concurrent code, as I've found that it's generally optimized around and promoting of goroutines. This was my first time using python in such a fashion.
