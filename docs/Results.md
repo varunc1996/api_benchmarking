@@ -336,7 +336,7 @@ Avg Output Tokens: 7131.4320  |  Output Token Throughput: 186681.4221 tokens per
 ```
 </details>
 
-Again, as expected, over the ame set of requests that are randomly picked each time, as we increased the concurrency of our benchmarking tests, we were able to achieve higher request and output token throughput and were able to finish the same set of random requests in less time.
+Again, as expected, over the same set of requests that are randomly picked each time, as we increased the concurrency of our benchmarking tests, we were able to achieve higher request and output token throughput and were able to finish the same set of random requests in less time.
 
 ## Conclusion & Thoughts
 
