@@ -52,7 +52,11 @@ This was just to corroborate that if I sent more requests concurrently than what
 
 ## Modifying output tokens
 
-For this stage of testing, I wanted to see how the number of output tokens would affect the latency/throughput.
+I decided to do away with the concept of input tokens for this exercise and just focus on output_tokens to simplify the logic in the Flask API server. The benchmarking endpoint I used `/tokenizer` accepts just 1 integer parameter (`output_tokens`) and based on the size of the number, it will sleep for an associated amount of time adn return the `output_token` value back to us.
+
+For the rest of the testing, I ran the flask server with concurrency of 100: `make run CONCURRENCY=100`
+
+For this stage of testing, I wanted to display how the number of output tokens would affect the latency/throughput.
 
 <details>
 <summary> 100 Requests, 10 concurrency, 3 output tokens per request: 10.2s </summary>
@@ -154,11 +158,11 @@ Avg Output Tokens: 3000.0000  |  Output Token Throughput: 5976.6658 tokens per s
 ```
 </details>
 
+Obiously, as the ouput_token size gets larger (the return of the API also takes longer) and with fixed concurrency, the total time increases accordingly.
+
 ## Modifying concurrency
 
-I decided to do away with the concept of input tokens for this exercise and just focus on output_tokens to simplify the logic in the Flask API server. The benchmarking endpoint I used `/tokenizer` accepts just 1 integer parameter (`output_tokens`) and based on the size of the number, it will sleep for an associated amount of time adn return the `output_token` value back to us.
-
-For the rest of the testing, I ran the flask server with concurrency of 100: `make run CONCURRENCY=100`
+Where the benchmarking script really thrives, and async functions in general flourish, is being able to concurrently handle requests that involve waiting (mimicking high network IO wait time calls).
 
 `endpoints.txt`:
 ```
