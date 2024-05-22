@@ -2,7 +2,7 @@
 
 ## Initial testing of concurrency
 
-I wanted to initially test the the concurrency is working as I expect it to in both the Flask API server and the benchmarking script.
+I wanted to initially test the the concurrency is working as I expect it to in both the Flask API server and the benchmarking script. So I ran the flask server with default configs (maximum of 10 concurrent requests): `make run`
 
 `endpoints.txt`:
 ```
