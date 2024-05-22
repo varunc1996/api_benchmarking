@@ -91,7 +91,7 @@ def display_results(status_codes, total_latency, total_time, total_output_tokens
     print(f"Shortest request time: {min(total_latency):.4f} seconds  |  Longest request time: {max(total_latency):.4f} seconds")
 
     print("--- - --- - ---")
-    print(f"Throughput: {len(total_latency) / total_time} requests per second")
+    print(f"Throughput: {(len(total_latency) / total_time):.4f} requests per second")
     print(f"Avg Output Tokens: {(total_output_tokens[0] / len(total_latency)):.4f}  |  Output Token Throughput: {(total_output_tokens[0] / total_time):.4f} tokens per second")
 
 
