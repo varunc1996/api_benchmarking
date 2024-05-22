@@ -33,7 +33,7 @@ The benchmarking script takes 3 parameters: `requests`, `concurrency` & `targets
 <details>
 <summary>Parameters</summary>
 
-| Parameter | Type Type | Default | Description |
+| Parameter | Type | Default | Description |
 | --- | --- | ---- | --- |
 | `requests` | `int` | 10 | Total number of requests to execute |
 | `concurrency` | `int` | 5 | Maximum number of parallel requests allowed |

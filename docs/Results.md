@@ -50,7 +50,7 @@ Avg Output Tokens: 0.0600  |  Output Token Throughput: 29.2121 tokens per second
 ```
 </details>
 
-This was just to corroborate that if I sent more requests concurrently than what the Flask API server can handle at once, I was going to correctly get several `429` response codes.
+This was just to corroborate that if I sent more requests concurrently than what the Flask API server could handle at once, I was going to correctly get several `429` response codes.
 
 ## Modifying output tokens
 
@@ -138,7 +138,7 @@ Avg Output Tokens: 300.0000  |  Output Token Throughput: 995.9944 tokens per sec
 
 `endpoints.txt`:
 ```
-http://localhost:5000/tokenizer?output_tokens=300
+http://localhost:5000/tokenizer?output_tokens=3000
 ```
 
 Results:
@@ -158,7 +158,7 @@ Avg Output Tokens: 3000.0000  |  Output Token Throughput: 5976.6658 tokens per s
 ```
 </details>
 
-Obiously, as the ouput_token size gets larger (the return of the API also takes longer) and with fixed concurrency, the total time increases accordingly.
+Obviously, as the ouput_token size gets larger (the return of the API also takes longer) with fixed concurrency, the total time increases accordingly.
 
 ## Modifying concurrency
 
@@ -170,7 +170,7 @@ http://localhost:5000/tokenizer?output_tokens=300
 ```
 
 <details>
-<summary> 500 Requests, 10 concurrency, 300 ouput tokens per request: 152.3s </summary>
+<summary> 500 Requests, 10 concurrency: 152.3s </summary>
 
 ```
 $ python benchmarking/async_benchmarking.py --requests 500 --concurrency 10 --targets endpoints.txt
@@ -189,7 +189,7 @@ Avg Output Tokens: 300.0000  |  Output Token Throughput: 985.0702 tokens per sec
 </details>
 
 <details>
-<summary> 500 Requests, 25 concurrency, 300 ouput tokens per request: 62.1s </summary>
+<summary> 500 Requests, 25 concurrency: 62.1s </summary>
 
 ```
 $ python benchmarking/async_benchmarking.py --requests 500 --concurrency 25 --targets endpoints.txt
@@ -208,7 +208,7 @@ Avg Output Tokens: 300.0000  |  Output Token Throughput: 2414.7879 tokens per se
 </details>
 
 <details>
-<summary> 500 Requests, 50 concurrency, 300 ouput tokens per request: 30.3s </summary>
+<summary> 500 Requests, 50 concurrency: 30.3s </summary>
 
 ```
 $ python benchmarking/async_benchmarking.py --requests 500 --concurrency 50 --targets endpoints.txt
@@ -227,7 +227,7 @@ Avg Output Tokens: 300.0000  |  Output Token Throughput: 4937.8361 tokens per se
 </details>
 
 <details>
-<summary> 500 Requests, 100 concurrency, 300 ouput tokens per request: 15.6s </summary>
+<summary> 500 Requests, 100 concurrency: 15.6s </summary>
 
 ```
 $ python benchmarking/async_benchmarking.py --requests 500 --concurrency 100 --targets endpoints.txt
@@ -344,6 +344,6 @@ Not all that ground breaking, was the fact that as we increased concurrency of o
 
 In order to better mimic an LLM's HTTP endpoint, I actually initially created a random word generator function, and the `/tokenizer` endpoint was returning a corresponding number of words based on the number of `output_tokens` the request asked for. However, when stress testing that endpoint, especially with higher concurrency, the flask API server was bottlenecked at the random word generator function because I had several HTTP requests making several additional calls to that word generator function; therefore, increased concurrency wasn't actually translating to higher throughput, so I decided to abandon that idea and not overcomplicate the flask server.
 
-I could have made the API server more complicated using `gunicorn` along with Flask, and therefore could have had several workers/threads. That may have ameliorated the bottleneck I mentioned above, however, then this would have become an exercise focused on optimizing the API server's work capacity instead.
+I could have made the API server more resilient using `gunicorn` along with Flask, and therefore could have had several workers/threads. That may have ameliorated the bottleneck I mentioned above, however, then this would have become an exercise focused on optimizing the API server's work capacity instead.
 
-In the past I've usually used golang when trying to write more concurrent code, as I've found that it's generally optimized around and promoting of goroutines. This was my first time using python in such a fashion.
+In the past I've usually used golang when trying to write more concurrent code, as I've found that it's generally optimized around and promoting of goroutines. This was my first time using python's coroutines for a similar goal.
