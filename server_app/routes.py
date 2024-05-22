@@ -36,7 +36,7 @@ def check_concurrent_requests(func):
     """
     @wraps(func)
     def wrapper(*args, **kwargs):
-        # print(f'concurrent requests: {concurrent_requests}')
+        print(f'concurrent requests: {concurrent_requests}')
         if concurrent_requests >= app.config['MAX_CONCURRENT_REQUESTS']:
             return jsonify(error="Too many concurrent requests"), 429
         else:
@@ -73,61 +73,25 @@ def sleeper():
 @app.route('/tokenizer', methods=['GET'])
 @check_concurrent_requests
 def tokenizer():
-    input_text = request.args.get('input_text')
     output_tokens = int(request.args.get('output_tokens'))
 
-    if not input_text or not output_tokens:
+    if not output_tokens:
         return "Invalid input", 400
 
-    output_text, input_tokens = generate_response(input_text, output_tokens)
+    # To mimic different amounts of output tokens configurations,
+    # just sleep to represent a request taking longer for more output tokens
+    if output_tokens < 10:  # Few output tokens takes less time
+        time.sleep(1)
+    elif output_tokens < 100:
+        time.sleep(2)
+    elif output_tokens < 1000:
+        time.sleep(3)
+    else:
+        time.sleep(5)
 
-    # Just return both input and output tokens, so it's easier to
-    # benchmark and it's easy to use the target file without doing a bunch of string parsing
     return jsonify({
-        'input_text': input_text, 'ouput_text': output_text,
-        'input_tokens': input_tokens, 'output_tokens': output_tokens,
+        'output_tokens': output_tokens,
     })
-
-
-def generate_response(input_text, output_tokens):
-    """
-    Generate a response text of length based on output_tokens & determine the number of input tokens
-
-    For reference, I assumed that 1 token == 4 characters 
-    when figuring out how many tokens were in the input string (from OpenAI tokenizer website)
-    Reference: https://platform.openai.com/tokenizer
-
-    For output, I just assumed output_tokens == word count of the response
-
-    Args:
-        input_text (string): The inputted string
-        output_tokens (int): the length in tokens of the response
-
-    Returns:
-        string: some response string
-        int: the number of tokens in the input string
-    """
-
-    output_text = ' '.join([generate_random_word() for _ in range(output_tokens)])
-
-    input_tokens = math.ceil(len(input_text) / 4)
-    return output_text, input_tokens
-
-
-def generate_random_word():
-    """
-    Return a random word from the list
-    """
-    word_list = [
-        "apple", "banana", "cherry", 
-        "date", "elderberry", "fig", 
-        "grape", "honeydew", "iron", 
-        "jewel" "kiwi", "lemon"
-        "melon", "night", "outside",
-        "pencil", "quality", "rose", "steel",
-        "torn", "under", "violet",
-        "white", "xerox", "yellow", "zoo"]
-    return random.choice(word_list)
 
 
 # To update app config

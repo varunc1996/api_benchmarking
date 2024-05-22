@@ -6,7 +6,7 @@ import time
 import statistics
 
 
-async def worker(session, url, status_codes, total_latency, total_input_tokens, total_output_tokens, lock, semaphore):
+async def worker(session, url, status_codes, total_latency, total_output_tokens, lock, semaphore):
     """
     Make an HTTP GET request to the specified URL and update shared statistics.
 
@@ -15,7 +15,6 @@ async def worker(session, url, status_codes, total_latency, total_input_tokens, 
         url (str): The URL to make the request to.
         status_codes (dict): A dictionary to store status codes and their counts.
         total_latency (list): A list to store total_latency of each request.
-        total_input_tokens(list): A list that stores the total number of input tokens in the first element
         total_output_tokens(list): A list that stores the total number of output tokens in the first element
         lock (asyncio.Lock): A lock to synchronize access to shared resources.
         semaphore (asyncio.Semaphore): A semaphore to limit concurrency.
@@ -28,18 +27,15 @@ async def worker(session, url, status_codes, total_latency, total_input_tokens, 
             async with session.get(url) as response:
                 status_code = response.status
                 response_data = await response.json()
-                input_tokens = response_data.get('input_tokens', 0)
                 output_tokens = response_data.get('output_tokens', 0)
         except aiohttp.ClientError:
             status_code = 500  # Internal Server Error
-            input_tokens = 0
             output_tokens = 0
         end_time = time.time()
         
         async with lock:
             status_codes[status_code] = status_codes.get(status_code, 0) + 1
             total_latency.append(end_time - start_time)
-            total_input_tokens[0] += input_tokens
             total_output_tokens[0] += output_tokens
 
 
@@ -56,7 +52,6 @@ async def single_benchmark(targets, num_requests, lock, semaphore):
 
     status_codes = {}
     total_latency = []
-    total_input_tokens = [0]
     total_output_tokens = [0]
 
     start_time = time.time()
@@ -64,16 +59,16 @@ async def single_benchmark(targets, num_requests, lock, semaphore):
         tasks = []
         for _ in range(num_requests):
             url = random.choice(targets)  # Pick one random target from the list
-            task = asyncio.create_task(worker(session, url, status_codes, total_latency, total_input_tokens, total_output_tokens, lock, semaphore))
+            task = asyncio.create_task(worker(session, url, status_codes, total_latency, total_output_tokens, lock, semaphore))
             tasks.append(task)
 
         await asyncio.gather(*tasks)
 
     end_time = time.time()
-    display_results(status_codes, total_latency, end_time - start_time, total_input_tokens, total_output_tokens)
+    display_results(status_codes, total_latency, end_time - start_time, total_output_tokens)
 
 
-def display_results(status_codes, total_latency, total_time, total_input_tokens, total_output_tokens):
+def display_results(status_codes, total_latency, total_time, total_output_tokens):
     """
     Display our benchmarking results
 
@@ -81,7 +76,6 @@ def display_results(status_codes, total_latency, total_time, total_input_tokens,
         status_codes (dict): A dictionary to store status codes and their counts.
         total_latency (list): A list to store total_latency of each request.
         total_time (float): Total time taken for all requests in seconds
-        total_input_tokens(list): A list that stores the total number of input tokens in the first element
         total_output_tokens(list): A list that stores the total number of output tokens in the first element
     """
     print("*** Results ***")
@@ -98,8 +92,7 @@ def display_results(status_codes, total_latency, total_time, total_input_tokens,
 
     print("--- - --- - ---")
     print(f"Throughput: {len(total_latency) / total_time} requests per second")
-    print(f"Avg Input Tokens: {(total_input_tokens[0] / len(total_latency)):.4f}  |  Avg Output Tokens: {(total_output_tokens[0] / len(total_latency)):.4f}")
-    print(f"Input Token Throughput: {(total_input_tokens[0] / total_time):.4f} tokens per second  |  Output Token Throughput: {(total_output_tokens[0] / total_time):.4f} tokens per second")
+    print(f"Avg Output Tokens: {(total_output_tokens[0] / len(total_latency)):.4f}  |  Output Token Throughput: {(total_output_tokens[0] / total_time):.4f} tokens per second")
 
 
 def parse_arguments():
