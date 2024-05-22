@@ -2,7 +2,7 @@
 
 ## Initial testing of concurrency
 
-I wanted to initially test the the concurrency is working as I expect it to.
+I wanted to initially test the the concurrency is working as I expect it to in both the Flask API server and the benchmarking script.
 
 `endpoints.txt`:
 ```
