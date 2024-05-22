@@ -94,17 +94,6 @@ def tokenizer():
     })
 
 
-# To update app config
-@app.route('/update_config', methods=['POST'])
-def update_config():
-    data = request.json
-    if 'max_concurrent_requests' in data:
-        app.config['MAX_CONCURRENT_REQUESTS'] = data['max_concurrent_requests']
-        return jsonify(message="Max concurrent requests updated successfully")
-    else:  # 'max_concurrent_requests' not in data:
-        return jsonify(error="max_concurrent_requests field is required in the request"), 400
-
-
 def parse_arguments():
     """
     Parse command-line arguments.
