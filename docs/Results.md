@@ -1,5 +1,7 @@
 # Benchmarking Results
 
+I decided to do away with the concept of input tokens for this exercise and just focus on output_tokens to simplify the logic in the Flask API server. The benchmarking endpoint I used `/tokenizer` accepts just 1 integer parameter (`output_tokens`) and based on the size of the number, it will sleep for an associated amount of time and return the `output_token` value back to us. I designed it this way to mimic an API request with high netowrk IO wait time, like an LLM HTTP request might take. It also allows us to more easily demonstrate the benefits of the asynchronous aspects of the benchmarking script. In reality, an LLM HTTP request's latency would actually be a funciton of both the number of input tokens and output tokens, but in this example, having just 1 lever to pull more easily accentuated that fact.
+
 ## Initial testing of concurrency
 
 I wanted to initially test the the concurrency is working as I expect it to in both the Flask API server and the benchmarking script. So I ran the flask server with default configs (maximum of 10 concurrent requests): `make run`
@@ -51,8 +53,6 @@ Avg Output Tokens: 0.0600  |  Output Token Throughput: 29.2121 tokens per second
 This was just to corroborate that if I sent more requests concurrently than what the Flask API server can handle at once, I was going to correctly get several `429` response codes.
 
 ## Modifying output tokens
-
-I decided to do away with the concept of input tokens for this exercise and just focus on output_tokens to simplify the logic in the Flask API server. The benchmarking endpoint I used `/tokenizer` accepts just 1 integer parameter (`output_tokens`) and based on the size of the number, it will sleep for an associated amount of time and return the `output_token` value back to us.
 
 For the rest of the testing, I ran the flask server with concurrency of 100: `make run CONCURRENCY=100`
 
@@ -246,3 +246,11 @@ Avg Output Tokens: 300.0000  |  Output Token Throughput: 9613.5125 tokens per se
 </details>
 
 As we can see, keeping the ouput tokens the same, and only adjusting the concurrency, we can see that the higher the concurrency, the faster we finish and the higher the throughput, for the same number of similar requests
+
+## Conclusion & Thoughts
+
+Not all that ground breaking, was the fact that as we increased concurrency of our API benchmarking system, we were able to sustain a higher throughput and make the same number of requests in less time.
+
+In order to better mimic an LLM's HTTP endpoint, I actually initially created a random word generator function, and the `/tokenizer` endpoint was returning a corresponding number of words based on the number of `output_tokens` the request asked for. However, when stress testing that endpoint, especially with higher concurrency, the flask API server was bottlenecked at the random word generator function because I had several HTTP requests making several additional calls to that word generator function; therefore, increased concurrency wasn't actually translating to higher throughput, so I decided to abandon that idea and not overcomplicate the flask server.
+
+I could have made the API server more complicated using `gunicorn` along with Flask, and therefore could have had several workers/threads. That may have ameliorated the bottleneck I mentioned above, however, then this would have become an exercise focused on optimizing the API server's work capacity instead.
